@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Graph Visualizer with Vis.js</title>
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <style>
+    #graph {
+      width: 100%;
+      height: 600px;
+      border: 1px solid lightgray;
+    }
+    #controls {
+      margin-top: 10px;
+    }
+    input, button {
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Graph Visualizer with Vis.js</h2>
+  <div id="graph"></div>
+
+  <div id="controls">
+    <input type="text" id="nodeId" placeholder="Node ID" />
+    <button onclick="addNode()">Add Node</button>
+
+    <input type="text" id="from" placeholder="From" />
+    <input type="text" id="to" placeholder="To" />
+    <input type="text" id="weight" placeholder="Weight" />
+    <button onclick="addEdge()">Add Edge</button>
+  </div>
+
+  <script>
+    // Create data sets
+    const nodes = new vis.DataSet([]);
+    const edges = new vis.DataSet([]);
+
+    // Create a network
+    const container = document.getElementById("graph");
+    const data = { nodes, edges };
+    const options = {
+      physics: {
+        enabled: true,
+        solver: 'forceAtlas2Based'
+      },
+      nodes: {
+        shape: 'circle',
+        size: 25,
+        font: { size: 18 }
+      },
+      edges: {
+        arrows: "to"
+      }
+    };
+    const network = new vis.Network(container, data, options);
+
+    // Add node
+    function addNode() {
+      const nodeId = document.getElementById("nodeId").value.trim();
+      if (nodeId && !nodes.get(nodeId)) {
+        const randomColor = 'red';
+        nodes.add({
+            id: nodeId,
+            label: `${nodeId}`,
+            color: {
+                background: randomColor,
+                border: '#333',
+                highlight: {
+                    background: randomColor,
+                    border: '#000'
+                }
+            }
+         });
+        document.getElementById("nodeId").value = "";
+      }
+    }
+
+    function checkEdgeExists(from, to) {
+        const allEdges = edges.get();
+        return allEdges.some(edge => edge.from === from && edge.to === to);
+    }
+
+    // Add edge
+    function addEdge() {
+      const from = document.getElementById("from").value.trim();
+      const to = document.getElementById("to").value.trim();
+      const weight = document.getElementById("weight").value.trim();
+      if (from && to && from !== to && nodes.get(from) && nodes.get(to) && !checkEdgeExists(from,to)) {
+        edges.add({
+            from,
+            to,
+            label: weight ? `${weight}` : "",
+            font: { align: 'top' },
+            arrows: "to"
+        });
+        document.getElementById("from").value = "";
+        document.getElementById("to").value = "";
+      }
+    }
+  </script>
+</body>
+</html>
